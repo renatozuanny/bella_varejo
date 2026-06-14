@@ -8,20 +8,20 @@ from datetime import date
 # %%
 app = FastAPI(
     title="API Mercado Geral - Simulador de Marketplace",
-    description="API de preços da concorrência travada por data para consistência de dados.",
+    description="API de preços da concorrência com consistência de dados baseada em semente temporal.",
     version="1.1.0"
 )
 
 NOME_ARQUIVO = "catalogo_bella_varejo.xlsx"
 
 def gerar_semente_por_data(id_prod, data_str):
-    """Gera um número inteiro único baseado no ID do produto e na data."""
+    """Gera um hash numérico determinístico baseado no ID do produto e na data alvo."""
     combinacao = f"{id_prod}_{data_str}"
-    # Usa criptografia simples (MD5) para transformar o texto em um número fixo
+    # Aplicação de hash MD5 para geração de uma semente numérica fixa
     return int(hashlib.md5(combinacao.encode()).hexdigest(), 16) % 1000000
 
 def carregar_dados_mercado(data_alvo: str):
-    """Lê a planilha e gera preços que só mudam quando a data muda."""
+    """Processa a base de referência e aplica fatores determinísticos de oscilação baseados em data."""
     try:
         df = pd.read_excel(NOME_ARQUIVO)
         produtos_api = []
@@ -30,11 +30,11 @@ def carregar_dados_mercado(data_alvo: str):
             id_prod = str(linha['id_produto_interno'])
             preco_base = float(linha['preco_base_referencia'])
             
-            # Cria uma semente estável para o gerador aleatório usando a data e o ID
+            # Inicialização da semente do gerador pseudo-aleatório para consistência diária
             semente = gerar_semente_por_data(id_prod, data_alvo)
             random.seed(semente)
             
-            # A oscilação agora é fixa para este produto nesta data específica
+            # Aplicação de fator de oscilação fixado para a janela temporal especificada (intervalo +/- 3%)
             fator_oscilacao = random.uniform(0.97, 1.03)
             preco_concorrente = round(preco_base * fator_oscilacao, 2)
             
@@ -47,19 +47,20 @@ def carregar_dados_mercado(data_alvo: str):
             
         return produtos_api
     except Exception as e:
-        raise RuntimeError(f"Erro ao processar a planilha: {str(e)}")
+        raise RuntimeError(f"Erro no processamento da base local: {str(e)}")
 
 @app.get("/")
 def home():
     return {
-        "status": "Online",
-        "mensagem": "Acesse /api/produtos para ver os preços estáveis do dia."
+        "status": "Operational",
+        "service": "Mercado Geral API",
+        "documentation": "Acesse /docs para a especificação completa das rotas ou /api/produtos para consumo direto."
     }
 
 @app.get("/api/produtos")
-def listar_produtos(data: str = Query(None, description="Formato: AAAA-MM-DD. Se omitido, usa a data de hoje.")):
+def listar_produtos(data: str = Query(None, description="Formato aceito: AAAA-MM-DD. Caso nulo, adota a data corrente do servidor.")):
     try:
-        # Se você não passar data no link, a API pega o dia de hoje automaticamente
+        # Fallback para a data atual caso o parâmetro de query esteja ausente
         if not data:
             data = str(date.today())
             

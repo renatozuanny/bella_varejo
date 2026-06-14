@@ -1,8 +1,9 @@
 # %%
 import pandas as pd
 
-print("📦 Ajustando a fábrica de dados para gerar exatamente 100 produtos únicos...")
+print("[INFO] Inicializando a geração da base de produtos de referência...")
 
+# Mapeamento do catálogo de produtos com os preços base originais
 base_produtos = {
     "Smartphone": [
         {"marca": "Samsung Galaxy", "modelos": ["S24 Ultra", "S24+", "S23 FE", "A55 5G", "A35 5G", "M54 5G", "A15 4G"], "precos": [6899, 5199, 2699, 1999, 1699, 1849, 999]},
@@ -23,7 +24,7 @@ base_produtos = {
         {"marca": "Lenovo", "modelos": ["IdeaPad Ryzen 5 8GB", "ThinkPad i5 16GB", "Legion Slim 5"], "precos": [2599, 4199, 7499]},
         {"marca": "Apple", "modelos": ["MacBook Air M2 8GB", "MacBook Pro M3 16GB", "MacBook Air M1 8GB"], "precos": [7999, 14999, 5499]}
     ],
-    "Televisor": [
+    "TV": [  # Alinhado com a regra de tolerância definida na Camada Gold do SQL
         {"marca": "LG", "modelos": ["Smart TV 4K 50''", "OLED Evo 55''"], "precos": [2499, 5999]},
         {"marca": "Samsung", "modelos": ["Crystal UHD 55''", "QLED 4K 65''"], "precos": [2699, 4499]}
     ]
@@ -33,16 +34,18 @@ base_produtos = {
 lista_final = []
 contador_id = 1000
 
+# Loop para desaninhamento dos dados e geração de variações (cores e voltagens)
 for categoria, marcas in base_produtos.items():
     for m in marcas:
         marca_nome = m["marca"]
         for mod, preco_base in zip(m["modelos"], m["precos"]):
             
-            # Cores para tech, voltagem para eletrodomésticos
-            variacoes = ["Grafite", "Prata", "Branco"] if categoria in ["Smartphone", "Notebook", "Televisor"] else ["110V", "220V"]
+            # Definição de atributos específicos por categoria de produto
+            variacoes = ["Grafite", "Prata", "Branco"] if categoria in ["Smartphone", "Notebook", "TV"] else ["110V", "220V"]
             
             for var in variacoes:
                 contador_id += 1
+                # Aplicação de fator de ajuste de preço baseado em SKU premium
                 ajuste_preco = 1.03 if var in ["Prata", "220V"] else 1.0
                 preco_ref = round(preco_base * ajuste_preco, 2)
                 
@@ -51,17 +54,17 @@ for categoria, marcas in base_produtos.items():
                     "nome_produto": f"{marca_nome} {mod} - {var}",
                     "categoria": categoria,
                     "preco_base_referencia": preco_ref,
-                    "preco_bella_varejo": ""
+                    "preco_bella_varejo": ""  # Coluna destinada para entrada manual de dados do negócio
                 }
                 lista_final.append(item)
 
-# Forçando o corte cirúrgico exatamente em 100
+# Limitação do Dataframe para a volumetria exata definida no escopo do projeto
 df_catalogo = pd.DataFrame(lista_final).head(100)
 
 # %%
-
+# Exportação do DataFrame estruturado para formato de planilha
 nome_arquivo = "catalogo_bella_varejo.xlsx"
 df_catalogo.to_excel(nome_arquivo, index=False)
 
-print(f"\n🎉 Agora sim! Planilha '{nome_arquivo}' gerada com EXATAMENTE {len(df_catalogo)} produtos 100% distintos.")
-print("Missão atualizada: Pode abrir o arquivo e começar o preenchimento estratégico da coluna 'preco_bella_varejo'!")
+print(f"[INFO] Processo concluído com sucesso.")
+print(f"[INFO] Arquivo '{nome_arquivo}' gerado com {len(df_catalogo)} registros únicos.")
