@@ -1,7 +1,8 @@
 import pandas as pd
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from google.oauth2 import service_account
+import pandas_gbq  # Importado para evitar o FutureWarning no BigQuery
 
 # Parâmetros de Origem e Consumo de API
 URL_API = "http://127.0.0.1:8000/api/produtos"
@@ -59,8 +60,9 @@ def executar_pipeline_diario(data_carga: str):
         # Inicialização das credenciais de serviço do Google Cloud Platform
         credencial = service_account.Credentials.from_service_account_file(CAMINHO_CHAVE)
         
-        # Escrita direta de Dataframe no BigQuery utilizando método Append
-        df_consolidado.to_gbq(
+        # Escrita direta de Dataframe utilizando a biblioteca padrão recomendada
+        pandas_gbq.to_gbq(
+            dataframe=df_consolidado,
             destination_table=f"{DATASET_ID}.{TABLE_ID}",
             project_id=PROJECT_ID,
             credentials=credencial,
@@ -71,21 +73,21 @@ def executar_pipeline_diario(data_carga: str):
     except Exception as e:
         print(f"[ERROR] Falha no processo de carga (Data Ingestion) para o Cloud DW: {e}")
 
-# === Bloco de Execução de Histórico ===
+# === Bloco de Execução do Pipeline ===
 if __name__ == "__main__":
-    from datetime import datetime, timedelta
     
-    print("[INFO] Inicializando carga histórica retroativa (Janela: 30 dias)...")
+    print("[INFO] Inicializando carga diária incremental (Janela: Hoje)...")
     
-    # Definição do ponto de partida cronológico para processamento em lote
-    data_final = datetime.strptime("2026-06-12", "%Y-%m-%d")
+    # Definição do ponto de partida cronológico DINÂMICO (Pega a data de hoje do sistema)
+    data_final = datetime.now()
     
-    # Loop de processamento em lote retroativo
-    for i in range(30):
+    # OBS: Usamos range(30) uma única vez para a carga histórica inicial de setup.
+    # Para o dia a dia em produção, mantemos range(1) para processar apenas o dia atual.
+    for i in range(1):
         data_corrente = data_final - timedelta(days=i)
         data_formatada = data_corrente.strftime("%Y-%m-%d")
         
         # Execução incremental diária
         executar_pipeline_diario(data_formatada)
         
-    print("\n[SUCCESS] Pipeline finalizado. Carga histórica de 30 dias executada e consolidada na nuvem.")
+    print("\n[SUCCESS] Pipeline finalizado. Dados de hoje consolidados na nuvem.")
