@@ -1,18 +1,19 @@
 import pandas as pd
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from google.oauth2 import service_account
 import pandas_gbq  # Importado para evitar o FutureWarning no BigQuery
 
+
 # Parâmetros de Origem e Consumo de API
-URL_API = "http://127.0.0.1:8000/api/produtos"
-CAMINHO_EXCEL = "catalogo_bella_varejo.xlsx"
+URL_API = "http://host.docker.internal:8000/api/produtos"
+CAMINHO_EXCEL = "/usr/local/airflow/include/catalogo_bella_varejo.xlsx"
 
 # Parâmetros de Destino - Cloud Data Warehouse (Google BigQuery)
 PROJECT_ID = "bella-varejo-analytics"
 DATASET_ID = "bronze_camada"      # Schema/Dataset destino no BigQuery
 TABLE_ID = "fato_pricing_mercado" # Tabela fato bruta de destino
-CAMINHO_CHAVE = "credenciais_gcp.json"
+CAMINHO_CHAVE = "/usr/local/airflow/credenciais_gcp.json"
 
 def executar_pipeline_diario(data_carga: str):
     print(f"\n[INFO] Iniciando execução do pipeline - Data Alvo: {data_carga}")
@@ -75,19 +76,13 @@ def executar_pipeline_diario(data_carga: str):
 
 # === Bloco de Execução do Pipeline ===
 if __name__ == "__main__":
-    
     print("[INFO] Inicializando carga diária incremental (Janela: Hoje)...")
     
-    # Definição do ponto de partida cronológico DINÂMICO (Pega a data de hoje do sistema)
-    data_final = datetime.now()
+    # Força a data para o horário de Brasília (UTC-3)
+    fuso_brasilia = timezone(timedelta(hours=-3))
+    data_final = datetime.now(fuso_brasilia)
     
-    # OBS: Usamos range(30) uma única vez para a carga histórica inicial de setup.
-    # Para o dia a dia em produção, mantemos range(1) para processar apenas o dia atual.
-    for i in range(1):
-        data_corrente = data_final - timedelta(days=i)
-        data_formatada = data_corrente.strftime("%Y-%m-%d")
-        
-        # Execução incremental diária
-        executar_pipeline_diario(data_formatada)
-        
+    data_formatada = data_final.strftime("%Y-%m-%d")
+    executar_pipeline_diario(data_formatada)
+    
     print("\n[SUCCESS] Pipeline finalizado. Dados de hoje consolidados na nuvem.")

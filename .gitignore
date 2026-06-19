@@ -1,3 +1,4 @@
 credenciais_gcp.json
 __pycache__/
 *.xlsx
+*.pbix
