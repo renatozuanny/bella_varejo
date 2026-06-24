@@ -18,17 +18,14 @@ O **Bella Varejo** é um projeto de engenharia de dados *end-to-end* desenvolvid
 * **Data Warehouse:** Google BigQuery (modelo *Star Schema*).
 * **Visualização:** Power BI (UI/UX focado em detecção de desvios de preço).
 
+
 ## 🗺️ Fluxo do Pipeline (Arquitetura)
 
-API Externa
-  ↓ (Extração Incremental)
-Apache Airflow
-  ↓ (Camada Bronze)
-Google BigQuery (Landing)
-  ↓ (Camada Silver - Tratamento/Limpeza)
-Google BigQuery (Warehouse)
-  ↓ (Camada Gold - Business)
-Power BI
+1. **Extração:** API Externa → **Apache Airflow** (Orquestração).
+2. **Bronze:** Carga bruta no **Google BigQuery**.
+3. **Silver:** Tratamento e modelagem (Criação de *Views* DIM e Fato).
+4. **Gold:** Regras de negócio aplicadas (Criação de *View* final de consumo).
+5. **Visualização:** **Power BI**.
 
 ## 📊 Principais KPIs do Projeto
 
