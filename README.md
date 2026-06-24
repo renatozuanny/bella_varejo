@@ -10,13 +10,13 @@ O **Bella Varejo** é um projeto de engenharia de dados *end-to-end* desenvolvid
 | :----------------------------------------------------------: | :-------------------------------------------------------------------: |
 | ![Log Airflow](assets/screenshots/Airflow_log_23.06.2026.jpeg) | ![Dashboard](assets/screenshots/Dashboard_Bella_Varejo_24.06.2026.jpeg) |
 
-## 🏗️ Arquitetura e Engenharia
+## 🏗️ Arquitetura e Engenharia (Híbrida)
 
-* **Arquitetura Medallion:** Pipeline organizado em camadas (Bronze, Silver e Gold) para garantir governança e qualidade dos dados.
-* **Orquestração:** Apache Airflow (via Astronomer) automatizando a carga incremental diária.
-* **Processamento:** Python (`Pandas`) para consumo de API com tratamento de erros.
-* **Data Warehouse:** Google BigQuery (modelo *Star Schema*).
-* **Visualização:** Power BI (UI/UX focado em detecção de desvios de preço).
+O projeto foi desenhado de forma híbrida para otimizar custos e garantir a governança dos dados, utilizando a **Arquitetura Medallion** para a estruturação do Data Warehouse.
+
+* **Processamento (Local):** Extração via FastAPI e orquestração pelo Apache  Airflow, rodando em ambriente local para máxima eficiência.
+* **Armazenamento (Cloud):** Persistência dos dados no **Google BigQuery**, garantindo escalabilidade e disponibilidade.
+* **Consumo (Cloud):** Dashboards interativos via **Power BI Service**.
 
 ## 🗺️ Fluxo do Pipeline (Arquitetura)
 
