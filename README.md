@@ -38,7 +38,6 @@ O projeto foi desenhado de forma híbrida para otimizar custos e garantir a gove
 * **Monitoramento:** Identificação automática de SKUs fora da conformidade de mercado.
 * **Escalabilidade:** Arquitetura pronta para suportar o crescimento do volume de SKUs com o padrão Medallion.
 
-
 ## 🛠️ Stack Tecnológica
 
 * **Python** → Ingestão de dados via API e processamento com Pandas.
@@ -47,3 +46,8 @@ O projeto foi desenhado de forma híbrida para otimizar custos e garantir a gove
 * **SQL** → Transformações analíticas (Camadas Bronze, Silver e Gold).
 * **Power BI** → Visualização e Dashboards interativos.
 * **Docker** → Containerização e padronização do ambiente.
+
+
+## 🔗 Acesso ao Dashboard
+
+[Clique aqui para interagir com o Dashboard Bella Varejo](https://app.fabric.microsoft.com/view?r=eyJrIjoiY2ZkMTJhNjMtODJmMC00YTJjLWI1MzEtMzk1NGI1OGFhNmQ3IiwidCI6IjY2OTUxMGJiLWFiMGUtNDQyYi1iYzE5LWYzYWM3MzBmODc1MyJ9)
