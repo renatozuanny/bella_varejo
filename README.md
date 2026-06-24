@@ -26,4 +26,4 @@ O **Bella Varejo** é um projeto de engenharia de dados *end-to-end* desenvolvid
 
 ## 🛠️ Tecnologias
 
-`Python (Pandas/Requests)`, `Apache Airflow`, `SQL`, `Google BigQuery`, `Power BI, Docker`.
+`Python (Pandas/Requests)`, `Apache Airflow`, `SQL`, `Google BigQuery`, `Power BI`, `Docker`.
