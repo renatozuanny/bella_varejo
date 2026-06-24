@@ -1,4 +1,15 @@
-credenciais_gcp.json
+# Cache do Python
 __pycache__/
-*.xlsx
-*.pbix
+**/__pycache__/
+
+# Segredos
+.env
+credenciais_gcp.json
+
+# Ambiente de desenvolvimento
+.astro/
+.venv/
+.pytest_cache/
+
+# Arquivos de dados
+catalogo_bella_varejo.xlsx
